@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react"
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native"
+import React, { useMemo, useRef, useState } from "react"
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Animated } from "react-native"
 import { AnagramPresenter } from "../presenter/AnagramPresenter"
 
 export default function AnagramView() {
@@ -12,10 +12,24 @@ export default function AnagramView() {
   const [secondAnagram, setSecondAnagram] = useState("")
   const [result, setResult] = useState<boolean | null>(null)
 
+  const feedbackAnim = useRef(new Animated.Value(0)).current
+
+  const playFeedback = () => {
+  feedbackAnim.setValue(0)
+
+  Animated.spring(feedbackAnim, {
+    toValue: 1,
+    useNativeDriver: true,
+    friction: 6,
+    tension: 140,
+  }).start()
+}
+
   // Delegates business logic to the presenter
   const handleCheck = () => {
     const checkResult = presenter.check(firstAnagram, secondAnagram)
     setResult(checkResult)
+    playFeedback()
   }
 
   return (
@@ -48,13 +62,26 @@ export default function AnagramView() {
         <Text style={styles.buttonText}>Check</Text>
       </TouchableOpacity>
 
-      {/* Conditionally render result (React way) */}
       {result !== null && (
-        <Text style={styles.result}>
-          {result ? "They are anagrams" : "Not anagrams"}
-        </Text>
-      )}
-
+        <Animated.Text
+            style={[
+            styles.result,
+            {
+                opacity: feedbackAnim, // 0 -> 1 fade
+                transform: [
+                {
+                    scale: feedbackAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.98, 1.0], // small pop
+                    }),
+                },
+                ],
+            },
+            ]}
+        >
+            {result ? "They are anagrams" : "Not anagrams"}
+        </Animated.Text>
+        )}
     </View>
   )
 }
