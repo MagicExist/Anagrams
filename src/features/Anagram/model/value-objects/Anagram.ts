@@ -22,11 +22,12 @@ export class Anagram {
   }
 
   private static generateKey(str: string): string {
-    return str
-      .toLowerCase()
-      .replace(/\s+/g, "")   
-      .split("")
-      .sort()
-      .join("")
+    const cleaned = str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")     
+    .replace(/[^\p{L}\p{N}]/gu, "")      
+
+    return cleaned.split("").sort().join("")
   }
 }
