@@ -4,51 +4,56 @@ import { AnagramPresenter } from "../presenter/AnagramPresenter"
 
 export default function AnagramView() {
 
-    const presenter = useMemo(()=> new AnagramPresenter(),[])
+  // Create presenter once (avoid recreating on every render)
+  const presenter = useMemo(() => new AnagramPresenter(), [])
 
-    const [firstAnagram, setFirstAnagram] = useState("")
-    const [secondAnagram, setSecondAnagram] = useState("")
-    const [result, setResult] = useState<boolean | null>(null)
+  // Local UI state (presentation layer concern)
+  const [firstAnagram, setFirstAnagram] = useState("")
+  const [secondAnagram, setSecondAnagram] = useState("")
+  const [result, setResult] = useState<boolean | null>(null)
 
-    const handleCheck = ()=>{
-        const checkResult = presenter.check(firstAnagram,secondAnagram)
-        setResult(checkResult)
-    }
+  // Delegates business logic to the presenter
+  const handleCheck = () => {
+    const checkResult = presenter.check(firstAnagram, secondAnagram)
+    setResult(checkResult)
+  }
+
   return (
     <View style={styles.container}>
       
-      {/* Title */}
       <Text style={styles.title}>Anagram Checker</Text>
 
-      {/* First Input */}
+      {/* First input controlled by React state */}
       <Text style={styles.label}>First Word</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter first word"
         placeholderTextColor="#888"
-        onChangeText={(text) => setFirstAnagram(text)}
+        value={firstAnagram}
+        onChangeText={setFirstAnagram}
       />
 
-      {/* Second Input */}
+      {/* Second input controlled by React state */}
       <Text style={styles.label}>Second Word</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter second word"
         placeholderTextColor="#888"
-        onChangeText={(text) => setSecondAnagram(text)}
+        value={secondAnagram}
+        onChangeText={setSecondAnagram}
       />
 
-      {/* Button */}
+      {/* Triggers presenter logic */}
       <TouchableOpacity style={styles.button} onPress={handleCheck}>
         <Text style={styles.buttonText}>Check</Text>
       </TouchableOpacity>
 
-      {/* Hidden Result Text (initially not shown) */}
+      {/* Conditionally render result (React way) */}
       {result !== null && (
         <Text style={styles.result}>
-            {result ?  "They are anagrams" : "Not anagrams"}
+          {result ? "They are anagrams" : "Not anagrams"}
         </Text>
-      )}   
+      )}
 
     </View>
   )
