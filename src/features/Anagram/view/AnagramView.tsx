@@ -11,6 +11,7 @@ export default function AnagramView() {
   const [firstAnagram, setFirstAnagram] = useState("")
   const [secondAnagram, setSecondAnagram] = useState("")
   const [result, setResult] = useState<boolean | null>(null)
+  const [hasChecked, setHasChecked] = useState(false)
 
   const feedbackAnim = useRef(new Animated.Value(0)).current
 
@@ -27,10 +28,17 @@ export default function AnagramView() {
 
   // Delegates business logic to the presenter
   const handleCheck = () => {
-    const checkResult = presenter.check(firstAnagram, secondAnagram)
-    setResult(checkResult)
-    playFeedback()
-  }
+    setHasChecked(true)
+
+    if (firstAnagram.trim() === "" || secondAnagram.trim() === "") {
+      setResult(null)
+      playFeedback()
+      return
+    }
+      const checkResult = presenter.check(firstAnagram, secondAnagram)
+      setResult(checkResult)
+      playFeedback()
+    }
 
   return (
     <View style={styles.container}>
@@ -62,7 +70,7 @@ export default function AnagramView() {
         <Text style={styles.buttonText}>Check</Text>
       </TouchableOpacity>
 
-      {result !== null && (
+      {hasChecked && (
         <Animated.Text
             style={[
             styles.result,
@@ -79,7 +87,7 @@ export default function AnagramView() {
             },
             ]}
         >
-            {result ? "They are anagrams" : "Not anagrams"}
+            {result === null ? "Fields cannot be empty" : result ? "They are anagrams" : "They are not anagrams"}
         </Animated.Text>
         )}
     </View>
